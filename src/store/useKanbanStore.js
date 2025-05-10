@@ -1,6 +1,6 @@
 // stores/useKanbanStore.js
 import { defineStore } from 'pinia'
-import API from '../Axios/api'
+import API from '../Axios/api/index.js'
 
 export const useKanbanStore = defineStore('kanban', {
   state: () => ({
@@ -8,15 +8,19 @@ export const useKanbanStore = defineStore('kanban', {
     loading: false,
     error: null,
   }),
+  persist: true,
 
   actions: {
     async fetchSections() {
+      console.log('[fetchSections] Called')
       this.loading = true
       try {
         const response = await API.get('/section')
+        console.log('Fetched sections:', response.data)
         this.sections = response.data
       } catch (error) {
         this.error = error.message
+        console.error('Fetch error:', error)
       } finally {
         this.loading = false
       }

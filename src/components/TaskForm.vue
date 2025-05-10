@@ -27,8 +27,8 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
-import { useAuthStore } from '@/stores/auth'
+import { ref, onMounted, watch, computed } from 'vue';
+import { useAuthStore } from '../store/useAuthStore';
 
 const props = defineProps(['open', 'onClose', 'onSubmit'])
 const authStore = useAuthStore()

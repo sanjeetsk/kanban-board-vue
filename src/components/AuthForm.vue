@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="open" persistent>
+  <v-dialog :model-value="props.open" @update:modelValue="emit('update:open', $event)" persistent>
     <v-card>
       <v-card-title>{{ isLogin ? "Login" : "Sign Up" }}</v-card-title>
       <v-card-text>
@@ -22,10 +22,18 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
-import { useAuthStore } from '../store/authStore'
+import { ref, onMounted, watch, computed } from 'vue'
+import { useAuthStore } from '../store/useAuthStore'
 
-const props = defineProps(['open', 'handleClose'])
+// Define props
+const props = defineProps({
+  open: Boolean,
+  handleClose: Function
+})
+
+// Define emit
+const emit = defineEmits(['update:open'])
+
 const authStore = useAuthStore()
 
 const form = ref({ name: '', email: '', password: '', userPhoto: '' })
@@ -58,7 +66,7 @@ watch(() => authStore.signupSuccess, (val) => {
 watch(() => authStore.token, (token) => {
   if (token) {
     resetForm()
-    props.handleClose()
+    emit('update:open', false) // ✅ use emit instead of props.handleClose()
   }
 })
 </script>

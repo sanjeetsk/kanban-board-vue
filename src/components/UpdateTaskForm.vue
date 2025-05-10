@@ -28,7 +28,8 @@
 
 <script setup>
 import { ref, watch } from 'vue'
-import { useKanbanStore } from '@/stores/kanban'
+import { ref, onMounted, watch, computed } from 'vue';
+import { useKanbanStore } from '../store/useKanbanStore';
 
 const props = defineProps(['open', 'onClose', 'task', 'sectionId'])
 const kanbanStore = useKanbanStore()

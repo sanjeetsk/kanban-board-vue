@@ -49,7 +49,7 @@
 
 
     <!-- Add Section Modal -->
-    <div v-if="isSectionFormOpen" class="modal">
+    <div v-if="isSectionFormOpen" ref="modalRef" class="modal">
       <div class="modal-content">
         <h3>Add New Section</h3>
         <input v-model="newSectionTitle" placeholder="Section Title" class="modal-input" />
@@ -102,6 +102,8 @@ const isSectionFormOpen = ref(false);
 const isAuthFormOpen = ref(false);
 const mobileMenuOpen = ref(false);
 const userMenuOpen = ref(false);
+const isAddSectionModalOpen = ref(false)
+const modalRef = ref(null)
 
 const isMobile = computed(() => window.innerWidth <= 600);
 
@@ -114,11 +116,11 @@ const handleAddSection = () => {
 };
 
 const handleClickOutside = (e) => {
-  const modal = document.querySelector('.modal-content')
-  if (isAddSectionModalOpen.value && modal && !modal.contains(e.target)) {
+  if (modalRef.value && !modalRef.value.contains(e.target)) {
     isAddSectionModalOpen.value = false
   }
 }
+
 
 const toggleUserMenu = () => {
   userMenuOpen.value = !userMenuOpen.value;

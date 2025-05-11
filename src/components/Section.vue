@@ -5,7 +5,7 @@
       <div class="section-actions">
         <button class="section-actions-btn" @click="isSectionFormOpen = true">+</button>&nbsp;
         <button class="section-actions-btn" @click="toggleMenu">⋯</button>
-        <div v-if="menuOpen" class="dropdown-menu">
+        <div v-if="menuOpen" class="dropdown-menu" ref="menuRef">
           <button @click="handleUpdateSection">Update Title</button>
           <button @click="handleDeleteSection" class="danger">Delete Section</button>
         </div>
@@ -28,7 +28,7 @@
 
     <!-- Section Modal -->
     <div v-if="isSectionFormOpen" class="modal">
-      <div class="modal-content">
+      <div class="modal-content" ref="sectionModalRef">
         <h3>Add New Section</h3>
         <input v-model="newSectionTitle" placeholder="Section Title" />
         <div class="modal-actions">
@@ -47,8 +47,9 @@
   </div>
 </template>
 
+
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import draggable from 'vuedraggable'
 import TaskCard from './TaskCard.vue'
 import TaskForm from './TaskForm.vue'
@@ -65,6 +66,10 @@ const isTaskFormOpen = ref(false)
 const isSectionFormOpen = ref(false)
 const menuOpen = ref(false)
 const newSectionTitle = ref('')
+
+// Refs to modal and menu
+const sectionModalRef = ref(null)
+const menuRef = ref(null)
 
 const toggleMenu = () => {
   menuOpen.value = !menuOpen.value
@@ -106,7 +111,6 @@ const handleUpdateSection = () => {
   menuOpen.value = false
 }
 
-// DnD callback
 const onDragEnd = (evt) => {
   const { oldIndex, newIndex } = evt
   if (oldIndex !== newIndex) {
@@ -118,7 +122,33 @@ const onDragEnd = (evt) => {
     })
   }
 }
+
+// === Outside click handling ===
+const handleClickOutside = (event) => {
+  if (isSectionFormOpen.value && sectionModalRef.value && !sectionModalRef.value.contains(event.target)) {
+    isSectionFormOpen.value = false
+    newSectionTitle.value = ''
+  }
+  if (menuOpen.value && menuRef.value && !menuRef.value.contains(event.target)) {
+    menuOpen.value = false
+  }
+}
+
+watch([isSectionFormOpen, menuOpen], ([formOpen, menuOpenVal]) => {
+  if (formOpen || menuOpenVal) {
+    setTimeout(() => {
+      document.addEventListener('click', handleClickOutside)
+    }, 0)
+  } else {
+    document.removeEventListener('click', handleClickOutside)
+  }
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 </script>
+
 
 <style scoped>
 .section {

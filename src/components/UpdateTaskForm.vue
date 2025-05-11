@@ -1,6 +1,6 @@
 <template>
   <div v-if="open" class="dialog-overlay">
-    <div class="dialog">
+    <div class="dialog" ref="dialogRef">
       <h2>Update Task</h2>
       <div class="form-group">
         <label>Task Name</label>
@@ -19,7 +19,7 @@
         <input v-model="taskData.dueDate" type="date" />
       </div>
       <div class="dialog-actions">
-        <button @click="onClose">Cancel</button>
+        <button @click="emitClose">Cancel</button>
         <button class="primary" @click="handleSubmit">Update Task</button>
       </div>
     </div>
@@ -27,11 +27,19 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, computed } from 'vue';
-import { useKanbanStore } from '../store/useKanbanStore';
+import { ref, watch, onMounted, onUnmounted } from 'vue'
+import { useKanbanStore } from '../store/useKanbanStore'
 
-const props = defineProps(['open', 'onClose', 'task', 'sectionId'])
+const props = defineProps({
+  open: Boolean,
+  task: Object,
+  sectionId: String
+})
+const emit = defineEmits(['update:open'])
+
 const kanbanStore = useKanbanStore()
+
+const dialogRef = ref(null)
 
 const taskData = ref({
   name: '',
@@ -49,7 +57,27 @@ watch(() => props.task, (newTask) => {
       assignee: newTask.assignee || ''
     }
   }
+}, { immediate: true })
+
+watch(() => props.open, (isOpen) => {
+  if (isOpen) {
+    setTimeout(() => {
+      document.addEventListener('click', handleClickOutside)
+    }, 0)
+  } else {
+    document.removeEventListener('click', handleClickOutside)
+  }
 })
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
+
+const handleClickOutside = (event) => {
+  if (dialogRef.value && !dialogRef.value.contains(event.target)) {
+    emitClose()
+  }
+}
 
 const handleSubmit = () => {
   kanbanStore.updateTask({
@@ -60,7 +88,11 @@ const handleSubmit = () => {
       section: props.sectionId
     }
   })
-  props.onClose()
+  emitClose()
+}
+
+const emitClose = () => {
+  emit('update:open', false)
 }
 </script>
 

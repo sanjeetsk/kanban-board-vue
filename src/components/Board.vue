@@ -281,6 +281,7 @@ onBeforeUnmount(() => {
 
 
 .add-section-button button {
+  width: 150px;
   background-color: #e0e0e0;
   padding: 8px 12px;
   border: none;

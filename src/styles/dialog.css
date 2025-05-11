@@ -51,6 +51,11 @@
   cursor: pointer;
 }
 
+.dialog-actions button:hover{
+  background-color: #781515;
+  color: white;
+}
+
 .dialog-actions button.primary {
   background-color: #1976d2;
   color: white;

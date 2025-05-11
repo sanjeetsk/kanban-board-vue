@@ -203,7 +203,7 @@ onUnmounted(() => {
   color: red;
 }
 .task-list {
-  min-height: 200px;
+  min-height: 90px;
   background: #f5f5f5;
   padding: 0.5rem;
   border-radius: 6px;

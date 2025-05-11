@@ -1,118 +1,135 @@
 <template>
-  <div class="section" :class="{ 'section--hover': isOver }" ref="dropZone">
+  <div class="section">
     <div class="section-header">
-      <h6 class="section-title">{{ section.name }}</h6>
+      <h4>{{ section.name }}</h4>
       <div class="section-actions">
-        <button @click="openAddTaskForm">+</button>
-        <button @click="openMenu">⋮</button>
+        <button @click="isSectionFormOpen = true">➕</button>
+        <button @click="toggleMenu">⋮</button>
+        <div v-if="menuOpen" class="dropdown-menu">
+          <button @click="handleUpdateSection">Update Title</button>
+          <button @click="handleDeleteSection" class="danger">Delete Section</button>
+        </div>
       </div>
     </div>
 
-    <div class="section-tasks">
-      <div v-if="!section.tasks || section.tasks.length === 0">
-        <button class="add-task-button" @click="openAddTaskForm">+ Add Task</button>
-      </div>
-      <div v-else>
-        <TaskCard
-          v-for="task in section.tasks"
-          :key="task._id"
-          :task="task"
-          :sectionId="section._id"
-        />
-        <button class="add-task-button" @click="openAddTaskForm">+ Add Task</button>
+    <draggable
+      v-model="section.tasks"
+      group="tasks"
+      item-key="_id"
+      class="task-list"
+      @end="onDragEnd"
+    >
+      <template #item="{ element }">
+        <TaskCard :task="element" :sectionId="section._id" />
+      </template>
+    </draggable>
+
+    <button class="add-task-btn" @click="isTaskFormOpen = true">+ Add Task</button>
+
+    <!-- Section Modal -->
+    <div v-if="isSectionFormOpen" class="modal">
+      <div class="modal-content">
+        <h3>Add New Section</h3>
+        <input v-model="newSectionTitle" placeholder="Section Title" />
+        <div class="modal-actions">
+          <button @click="cancelAddSection">Cancel</button>
+          <button @click="handleAddSection">Add Section</button>
+        </div>
       </div>
     </div>
 
-    <!-- Add Section Dialog -->
-    <div v-if="isSectionFormOpen" class="dialog">
-      <h3>Add New Section</h3>
-      <input v-model="newSectionTitle" placeholder="Section Title" />
-      <div class="dialog-actions">
-        <button @click="closeSectionForm">Cancel</button>
-        <button @click="handleAddSection">Add Section</button>
-      </div>
-    </div>
-
-    <!-- Add Task Dialog -->
     <TaskForm
-      v-if="isTaskFormOpen"
       :open="isTaskFormOpen"
-      @close="closeTaskForm"
+      @update:open="isTaskFormOpen = $event"
       @submit="handleAddTask"
       :defaultAssignee="'Current User'"
     />
   </div>
 </template>
 
-<script>
-import TaskCard from './TaskCard.vue';
-import TaskForm from './TaskForm.vue';
+<script setup>
+import { ref } from 'vue'
+import draggable from 'vuedraggable'
+import TaskCard from './TaskCard.vue'
+import TaskForm from './TaskForm.vue'
+import { useKanbanStore } from '../store/useKanbanStore'
 
-export default {
-  name: 'Section',
-  components: {
-    TaskCard,
-    TaskForm
-  },
-  props: {
-    section: Object
-  },
-  data() {
-    return {
-      isTaskFormOpen: false,
-      isSectionFormOpen: false,
-      newSectionTitle: '',
-      isOver: false
-    };
-  },
-  methods: {
-    openAddTaskForm() {
-      this.isTaskFormOpen = true;
-    },
-    closeTaskForm() {
-      this.isTaskFormOpen = false;
-    },
-    openMenu() {
-      // Implement menu logic
-    },
-    openSectionForm() {
-      this.isSectionFormOpen = true;
-    },
-    closeSectionForm() {
-      this.isSectionFormOpen = false;
-      this.newSectionTitle = '';
-    },
-    handleAddSection() {
-      if (this.newSectionTitle.trim() !== '') {
-        const sectionData = {
-          name: this.newSectionTitle,
-          selectedSectionId: this.section._id
-        };
-        // Dispatch addSection action
-        this.newSectionTitle = '';
-        this.isSectionFormOpen = false;
-      }
-    },
-    handleAddTask(taskData) {
-      const newTask = { ...taskData, section: this.section._id };
-      // Dispatch addTask action
-    }
-  },
-  mounted() {
-    // Implement drag-and-drop logic if needed
+const props = defineProps({
+  section: Object
+})
+
+const kanbanStore = useKanbanStore()
+const { addTask, deleteSection, updateSection, moveTask, addSection } = kanbanStore
+
+const isTaskFormOpen = ref(false)
+const isSectionFormOpen = ref(false)
+const menuOpen = ref(false)
+const newSectionTitle = ref('')
+
+const toggleMenu = () => {
+  menuOpen.value = !menuOpen.value
+}
+
+const handleAddTask = (taskData) => {
+  const newTask = { ...taskData, section: props.section._id }
+  addTask(newTask)
+}
+
+const handleAddSection = () => {
+  if (newSectionTitle.value.trim()) {
+    addSection({
+      name: newSectionTitle.value,
+      selectedSectionId: props.section._id
+    })
+    newSectionTitle.value = ''
+    isSectionFormOpen.value = false
   }
-};
+}
+
+const cancelAddSection = () => {
+  isSectionFormOpen.value = false
+  newSectionTitle.value = ''
+}
+
+const handleDeleteSection = () => {
+  if (confirm(`Are you sure you want to delete the section "${props.section.name}"?`)) {
+    deleteSection(props.section._id)
+  }
+  menuOpen.value = false
+}
+
+const handleUpdateSection = () => {
+  const newTitle = prompt('Enter new title for the section:', props.section.name)
+  if (newTitle && newTitle.trim()) {
+    updateSection({ sectionId: props.section._id, name: newTitle })
+  }
+  menuOpen.value = false
+}
+
+// DnD callback
+const onDragEnd = (evt) => {
+  const { oldIndex, newIndex } = evt
+  if (oldIndex !== newIndex) {
+    moveTask({
+      taskId: props.section.tasks[newIndex]._id,
+      sourceSectionId: props.section._id,
+      destinationSectionId: props.section._id,
+      task: props.section.tasks[newIndex]
+    })
+  }
+}
 </script>
 
 <style scoped>
 .section {
   background-color: white;
-  padding: 16px;
-  transition: opacity 0.15s ease;
-  will-change: opacity;
-  transform: translate3d(0, 0, 0);
+  padding: 1rem;
+  border-radius: 8px;
+  width: 300px;
+  margin-right: 1rem;
+  transition: opacity 0.2s ease;
 }
-.section--hover {
+.drag-over {
   opacity: 0.7;
 }
 .section-header {
@@ -120,47 +137,65 @@ export default {
   justify-content: space-between;
   align-items: center;
 }
-.section-title {
-  font-size: 1rem;
-  font-weight: bold;
+.section-actions {
+  position: relative;
 }
-.section-actions button {
+.dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  padding: 0.5rem;
+  z-index: 10;
+}
+.dropdown-menu button {
+  display: block;
+  width: 100%;
   background: none;
   border: none;
-  cursor: pointer;
-  font-size: 1.2rem;
+  padding: 0.25rem 0;
+  text-align: left;
 }
-.section-tasks {
-  margin-top: 8px;
-  height: 95%;
-  overflow-y: auto;
-  background-color: #f5f5f5;
-  padding: 8px;
-  border-radius: 8px;
+.dropdown-menu .danger {
+  color: red;
+}
+.task-list {
+  margin-top: 1rem;
   min-height: 200px;
-  transform: translate3d(0, 0, 0);
+  background: #f5f5f5;
+  padding: 0.5rem;
+  border-radius: 6px;
 }
-.add-task-button {
+.add-task-btn {
+  margin-top: 0.5rem;
   background: none;
   border: none;
-  color: #a2a5ab;
-  margin-top: 8px;
+  color: #888;
   cursor: pointer;
 }
-.dialog {
+
+.modal {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: white;
-  padding: 16px;
-  border-radius: 8px;
-  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(2px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-.dialog-actions {
+.modal-content {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  width: 300px;
+}
+.modal-actions {
+  margin-top: 1rem;
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
-  margin-top: 16px;
+  gap: 0.5rem;
 }
 </style>

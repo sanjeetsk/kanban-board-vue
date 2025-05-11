@@ -27,7 +27,6 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
 import { ref, onMounted, watch, computed } from 'vue';
 import { useKanbanStore } from '../store/useKanbanStore';
 

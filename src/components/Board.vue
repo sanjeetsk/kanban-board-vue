@@ -68,7 +68,7 @@
 
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, onBeforeUnmount } from 'vue';
 import { useKanbanStore } from '../store/useKanbanStore';
 import { useAuthStore } from '../store/useAuthStore';
 import Section from './Section.vue';
@@ -113,6 +113,13 @@ const handleAddSection = () => {
   }
 };
 
+const handleClickOutside = (e) => {
+  const modal = document.querySelector('.modal-content')
+  if (isAddSectionModalOpen.value && modal && !modal.contains(e.target)) {
+    isAddSectionModalOpen.value = false
+  }
+}
+
 const toggleUserMenu = () => {
   userMenuOpen.value = !userMenuOpen.value;
 };
@@ -124,6 +131,15 @@ onMounted(() => {
     fetchCurrentUser();
   }
 });
+
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
+
 </script>
 
 <style scoped>
@@ -260,9 +276,7 @@ onMounted(() => {
   gap: 10px;
 }
 
-.section-container {
-  min-width: 280px;
-}
+
 
 .add-section-button button {
   background-color: #e0e0e0;

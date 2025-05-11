@@ -60,9 +60,9 @@
       </div>
     </div>
 
-    <!-- <AuthForm :open="isAuthFormOpen" @close="isAuthFormOpen = false" /> -->
+    <!-- <AuthForm :open="isAuthFormOpen" @close="isAuthFormOpen = false" />
     <AuthForm :open="isAuthFormOpen" @update:open="isAuthFormOpen = $event" />
-    <LoadingScreen v-if="loading" />
+    <LoadingScreen v-if="loading" /> -->
   </div>
 </template>
 

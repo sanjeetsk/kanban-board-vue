@@ -3,8 +3,8 @@
     <!-- Top row: Title and menu -->
     <div class="task-header">
       <span class="task-title">{{ task.name }}</span>
-      <button @click="toggleMenu" class="menu-btn">⋮</button>
-      <div v-if="menuOpen" class="dropdown-menu">
+      <button ref="toggleBtnRef" @click="toggleMenu" class="menu-btn">⋯</button>
+      <div v-if="menuOpen" ref="menuRef" class="dropdown-menu">
         <button @click="handleDelete">Delete</button>
         <button @click="openUpdateForm">Update</button>
       </div>
@@ -34,7 +34,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useKanbanStore } from '../store/useKanbanStore'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -55,6 +55,8 @@ const props = defineProps({
 })
 
 const menuOpen = ref(false)
+const menuRef = ref(null)
+const toggleBtnRef = ref(null)
 const isUpdateFormOpen = ref(false)
 
 const kanbanStore = useKanbanStore()
@@ -63,6 +65,28 @@ const { deleteTask } = kanbanStore
 const toggleMenu = () => {
   menuOpen.value = !menuOpen.value
 }
+
+const handleClickOutside = (event) => {
+  const menuEl = menuRef.value
+  const toggleEl = toggleBtnRef.value
+
+  if (
+    menuEl &&
+    !menuEl.contains(event.target) &&
+    toggleEl &&
+    !toggleEl.contains(event.target)
+  ) {
+    menuOpen.value = false
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 
 const openUpdateForm = () => {
   isUpdateFormOpen.value = true
@@ -110,6 +134,7 @@ const avatarUrl = props.task.assignee
 }
 
 .task-header {
+  position: relative;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -118,18 +143,23 @@ const avatarUrl = props.task.assignee
   font-weight: 600;
 }
 .menu-btn {
+  position: relative;
+  z-index: 2;
   background: none;
   border: none;
-  font-size: 1rem;
+  font-size: 1.2rem;
   cursor: pointer;
 }
 .dropdown-menu {
   position: absolute;
+  top: 100%;
+  right: 0; /* Align to the right of the ⋯ icon */
   background: #f9f9f9;
   border: 1px solid #ddd;
   padding: 0.25rem;
-  right: 0.5rem;
-  z-index: 10;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  z-index: 1;
 }
 .dropdown-menu button {
   display: block;

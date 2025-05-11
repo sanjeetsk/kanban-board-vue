@@ -3,8 +3,8 @@
     <div class="section-header">
       <h4>{{ section.name }}</h4>
       <div class="section-actions">
-        <button @click="isSectionFormOpen = true">➕</button>
-        <button @click="toggleMenu">⋮</button>
+        <button class="section-actions-btn" @click="isSectionFormOpen = true">+</button>&nbsp;
+        <button class="section-actions-btn" @click="toggleMenu">⋯</button>
         <div v-if="menuOpen" class="dropdown-menu">
           <button @click="handleUpdateSection">Update Title</button>
           <button @click="handleDeleteSection" class="danger">Delete Section</button>
@@ -140,14 +140,26 @@ const onDragEnd = (evt) => {
 .section-actions {
   position: relative;
 }
+
+.section-actions-btn {
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  outline: none;
+}
 .dropdown-menu {
   position: absolute;
+  top: 28px;
   right: 0;
-  top: 100%;
-  background-color: #f9f9f9;
+  background: white;
   border: 1px solid #ddd;
-  padding: 0.5rem;
-  z-index: 10;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  z-index: 100;
+  min-width: 140px;
+  padding: 6px;
+  white-space: nowrap; /* Prevent text from wrapping */
 }
 .dropdown-menu button {
   display: block;
@@ -161,7 +173,6 @@ const onDragEnd = (evt) => {
   color: red;
 }
 .task-list {
-  margin-top: 1rem;
   min-height: 200px;
   background: #f5f5f5;
   padding: 0.5rem;

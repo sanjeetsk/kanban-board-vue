@@ -12,19 +12,23 @@
       </div>
     </div>
 
-    <draggable
-      v-model="section.tasks"
-      group="tasks"
-      item-key="_id"
-      class="task-list"
-      @end="onDragEnd"
-    >
-      <template #item="{ element }">
-        <TaskCard :task="element" :sectionId="section._id" />
-      </template>
-    </draggable>
+    <div class="section-box">
+      <!-- Draggable area should always be rendered to allow drops -->
+      <draggable v-model="section.tasks" group="tasks" item-key="_id" class="task-list" @end="onDragEnd">
+        <template #item="{ element }">
+          <TaskCard :task="element" :sectionId="section._id" />
+        </template>
 
-    <button class="add-task-btn" @click="isTaskFormOpen = true">+ Add Task</button>
+        <!-- Optional placeholder for visual feedback when empty -->
+        <template #footer v-if="!section.tasks || section.tasks.length === 0">
+          <div class="empty-drop-zone"></div>
+        </template>
+      </draggable>
+
+      <button class="add-task-btn" @click="isTaskFormOpen = true">+ Add Task</button>
+    </div>
+
+
 
     <!-- Section Modal -->
     <div v-if="isSectionFormOpen" class="modal">
@@ -38,12 +42,8 @@
       </div>
     </div>
 
-    <TaskForm
-      :open="isTaskFormOpen"
-      @update:open="isTaskFormOpen = $event"
-      @submit="handleAddTask"
-      :defaultAssignee="'Current User'"
-    />
+    <TaskForm :open="isTaskFormOpen" @update:open="isTaskFormOpen = $event" @submit="handleAddTask"
+      :defaultAssignee="'Current User'" />
   </div>
 </template>
 
@@ -152,23 +152,33 @@ onUnmounted(() => {
 
 <style scoped>
 .section {
-  background-color: white;
   padding: 1rem;
   border-radius: 8px;
   width: 300px;
   margin-right: 1rem;
   transition: opacity 0.2s ease;
 }
+
 .drag-over {
   opacity: 0.7;
 }
+
 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
+
 .section-actions {
   position: relative;
+}
+
+.section-box {
+  height: 75vh;
+  background: #f5f5f573;
+  padding: 0.5rem;
+  border-radius: 6px;
+  margin-top: 0.5rem;
 }
 
 .section-actions-btn {
@@ -178,6 +188,17 @@ onUnmounted(() => {
   cursor: pointer;
   outline: none;
 }
+
+.empty-drop-zone {
+  padding: 12px;
+  border: 2px dashed #ccc;
+  border-radius: 4px;
+  text-align: center;
+  color: #999;
+  font-size: 0.85rem;
+}
+
+
 .dropdown-menu {
   position: absolute;
   top: 28px;
@@ -189,8 +210,10 @@ onUnmounted(() => {
   z-index: 100;
   min-width: 140px;
   padding: 6px;
-  white-space: nowrap; /* Prevent text from wrapping */
+  white-space: nowrap;
+  /* Prevent text from wrapping */
 }
+
 .dropdown-menu button {
   display: block;
   width: 100%;
@@ -199,22 +222,51 @@ onUnmounted(() => {
   padding: 0.25rem 0;
   text-align: left;
 }
+
 .dropdown-menu .danger {
   color: red;
 }
+
 .task-list {
-  min-height: 90px;
+  max-height: 70vh;
   background: #f5f5f5;
   padding: 0.5rem;
   border-radius: 6px;
+  overflow-y: scroll;
+  scrollbar-width: none;
 }
+
 .add-task-btn {
-  margin-top: 0.5rem;
-  background: none;
-  border: none;
-  color: #888;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-sizing: border-box;
   cursor: pointer;
+  user-select: none;
+  appearance: none;
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 500;
+  font-size: 0.8rem;
+  /* slightly smaller */
+  line-height: 1.5;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+  background-color: transparent;
+  color: rgb(162, 165, 171);
+  width: 100%;
+  margin-top: 6px;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 6px;
+  /* reduced padding */
+  transition: background-color 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
 }
+
+.add-task-btn:hover {
+  background-color: rgba(25, 118, 210, 0.04);
+}
+
 
 .modal {
   position: fixed;
@@ -227,12 +279,14 @@ onUnmounted(() => {
   justify-content: center;
   align-items: center;
 }
+
 .modal-content {
   background: white;
   padding: 1rem;
   border-radius: 8px;
   width: 300px;
 }
+
 .modal-actions {
   margin-top: 1rem;
   display: flex;

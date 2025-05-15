@@ -43,7 +43,7 @@
         <Section :section="section" />
       </div>
       <div class="add-section-button">
-        <button @click="isSectionFormOpen = true">➕ Add Section</button>
+        <button @click="isSectionFormOpen = true"><span class="plus">+</span>&nbsp; Add Section</button>
       </div>
     </div>
 
@@ -150,7 +150,8 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   font-family: 'Segoe UI', sans-serif;
-  background-color: #f4f6f8;
+  /* background-color: #f4f6f8; */
+  background-color: white;
 }
 
 .navbar {
@@ -276,22 +277,37 @@ onBeforeUnmount(() => {
   overflow-x: auto;
   padding: 10px;
   gap: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(209, 213, 219) transparent;
 }
 
-
+.add-section-button{
+  margin-top: 5px;
+}
 
 .add-section-button button {
   width: 150px;
-  background-color: #e0e0e0;
+  background-color: white;
   padding: 8px 12px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   font-weight: bold;
+  color: #000000ae;
 }
 
 .add-section-button button:hover {
-  background-color: #ccc;
+  background-color: #f0f0f0;
+}
+
+.plus{
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #000000ae;
+}
+
+.section-container{
+height: calc(-84px + 100vh);
 }
 
 .modal {

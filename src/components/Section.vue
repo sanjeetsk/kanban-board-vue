@@ -155,7 +155,6 @@ onUnmounted(() => {
   padding: 1rem;
   border-radius: 8px;
   width: 300px;
-  margin-right: 1rem;
   transition: opacity 0.2s ease;
 }
 

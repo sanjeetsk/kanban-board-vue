@@ -120,9 +120,8 @@ const avatarUrl = props.task.assignee
 .task-card {
   background-color: #fff;
   border-radius: 8px;
-  padding: 0.75rem;
-  box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.1);
-  margin-bottom: 0.75rem;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;

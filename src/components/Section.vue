@@ -152,9 +152,9 @@ onUnmounted(() => {
 
 <style scoped>
 .section {
-  padding: 1rem;
+  margin: 1rem 0 0 0.9rem;
   border-radius: 8px;
-  width: 300px;
+  width: 270px;
   transition: opacity 0.2s ease;
 }
 
@@ -174,9 +174,9 @@ onUnmounted(() => {
 
 .section-box {
   height: 75vh;
-  background: #f5f5f573;
+  background: #f5f5f5;
   padding: 0.5rem;
-  border-radius: 6px;
+  border-radius: 8px;
   margin-top: 0.5rem;
 }
 
@@ -228,8 +228,6 @@ onUnmounted(() => {
 
 .task-list {
   max-height: 70vh;
-  background: #f5f5f5;
-  padding: 0.5rem;
   border-radius: 6px;
   overflow-y: scroll;
   scrollbar-width: none;

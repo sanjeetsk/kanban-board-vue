@@ -282,7 +282,7 @@ onBeforeUnmount(() => {
 }
 
 .add-section-button{
-  margin-top: 5px;
+  margin-top: 0.6rem;
 }
 
 .add-section-button button {
